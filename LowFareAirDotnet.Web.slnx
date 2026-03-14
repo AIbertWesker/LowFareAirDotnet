@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="LowFareAirDotnet.Domain/LowFareAirDotnet.Domain.csproj" Id="79576309-e562-4d92-b5aa-16ec0ca5d171" />
+  <Project Path="LowFareAirDotnet.Infrastructure/LowFareAirDotnet.Infrastructure.csproj" Id="13c37ab0-dca1-4fa8-9a98-130ef4f9ef51" />
+  <Project Path="LowFareAirDotnet.Logic/LowFareAirDotnet.Logic.csproj" Id="0808e096-5e64-4711-bbb7-cfa02c1e65d8" />
+  <Project Path="LowFareAirDotnet.Web/LowFareAirDotnet.Web.csproj" />
+  <Project Path="Tool.DbUper/Tool.DbUper.csproj" />
+</Solution>
