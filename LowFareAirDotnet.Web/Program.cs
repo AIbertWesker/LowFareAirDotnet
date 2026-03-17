@@ -63,6 +63,18 @@ public class Program
 
         builder.Services.AddAuthorization();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAnyFrontendApp", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
+        });
+
+
         builder.Services.RegisterLogic();
         builder.Services.RegisterInfrastructure(builder.Configuration);
 
