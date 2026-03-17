@@ -13,10 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LowFareAirDotnet.Domain\LowFareAirDotnet.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Repositories\" />
+    <ProjectReference Include="..\LowFareAirDotnet.Logic\LowFareAirDotnet.Logic.csproj" />
   </ItemGroup>
 
 </Project>

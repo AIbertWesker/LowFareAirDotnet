@@ -21,9 +21,10 @@ public class RelationalDbContext : DbContext
     {
         modelBuilder.Entity<UserModel>(entity =>
         {
+            entity.ToTable("users");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).HasColumnName("id");
-            entity.Property(x => x.Name).IsRequired();
+            entity.Property(x => x.Name).IsRequired().HasColumnName("username");
             entity.HasIndex(x => x.Name).IsUnique();
             entity.Property(x => x.Password).HasColumnName("password");
         });

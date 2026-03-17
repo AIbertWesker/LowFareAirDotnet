@@ -7,7 +7,7 @@ namespace Tool.DbUper
         static void Main(string[] args)
         {
             var migrator = new PostgresDbUper(
-                connectionString: "Host=localhost;Port=7004;Database=appdb;Username=appuser;Password=appsecret;Pooling=true;",
+                connectionString: "Host=localhost;Port=7004;Database=lowfareair;Username=postgres;Password=OtworSpecjalista666;Pooling=true;",
                 scriptsPath: "scripts"
             );
 

@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LowFareAirDotnet.Domain\LowFareAirDotnet.Domain.csproj" />
     <ProjectReference Include="..\LowFareAirDotnet.Infrastructure\LowFareAirDotnet.Infrastructure.csproj" />
     <ProjectReference Include="..\LowFareAirDotnet.Logic\LowFareAirDotnet.Logic.csproj" />

@@ -1,4 +1,6 @@
 ﻿using LowFareAirDotnet.Infrastructure.DbContexts;
+using LowFareAirDotnet.Infrastructure.Repositories;
+using LowFareAirDotnet.Logic.Abstractions.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,13 @@ public static class InfrastructureExtension
         //services.AddDbContextFactory<RelationalDbContext>(options =>
         //    options.UseNpgsql(connectionString));
 
+        services.RegisterRepositories();
+        return services;
+    }
+
+    private static IServiceCollection RegisterRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IUsersRepository, UsersRepository>();
         return services;
     }
 }

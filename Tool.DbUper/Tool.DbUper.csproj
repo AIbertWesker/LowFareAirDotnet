@@ -11,4 +11,13 @@
     <PackageReference Include="PostgresDbUper" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="scripts\0001_predeployment.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="scripts\0002_postdeployment.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
