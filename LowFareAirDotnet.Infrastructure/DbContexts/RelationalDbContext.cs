@@ -31,6 +31,7 @@ public class RelationalDbContext : DbContext
 
         modelBuilder.Entity<CityModel>(entity =>
         {
+            entity.ToTable("cities");
             entity.HasKey(x => x.CityId);
 
             entity.Property(x => x.CityId)
@@ -62,6 +63,7 @@ public class RelationalDbContext : DbContext
 
         modelBuilder.Entity<FlightModel>(entity =>
         {
+            entity.ToTable("flights");
             entity.HasKey(x => new { x.FlightId, x.SegmentNumber })
                 .HasName("flights_pk");
 
@@ -110,6 +112,7 @@ public class RelationalDbContext : DbContext
 
         modelBuilder.Entity<FlightAvailabilityModel>(entity =>
         {
+            entity.ToTable("flightavailability");
             entity.HasKey(x => new { x.FlightId, x.SegmentNumber, x.FlightDate })
                 .HasName("flightavail_pk");
 
@@ -136,14 +139,15 @@ public class RelationalDbContext : DbContext
                 .HasColumnName("firstclass_seats_taken")
                 .HasDefaultValue(0);
 
-            entity.HasOne<FlightModel>()
-                .WithMany()
+            entity.HasOne(x => x.Flight)
+                .WithMany(x => x.FlightAvailabilities)
                 .HasForeignKey(x => new { x.FlightId, x.SegmentNumber })
                 .HasConstraintName("flights_fk2");
         });
 
         modelBuilder.Entity<FlightHistoryModel>(entity =>
         {
+            entity.ToTable("flighthistory");
             entity.HasKey(x => x.Id);
 
             entity.Property(x => x.Id)
