@@ -1,8 +1,98 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Moje zarezerwowane loty";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1>@ViewData["Title"]</h1>
+
+<div id="bookingsMessage" class="alert d-none" role="alert"></div>
+
+<div class="table-responsive">
+    <table class="table table-striped" id="bookingsTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>FlightId</th>
+                <th>Segment</th>
+                <th>Data</th>
+                <th>Skąd</th>
+                <th>Dokąd</th>
+                <th>Klasa</th>
+                <th>Wylot</th>
+                <th>Przylot</th>
+                <th>Samolot</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const message = document.getElementById("bookingsMessage");
+            const tableBody = document.querySelector("#bookingsTable tbody");
+
+            const setMessage = (text, type) => {
+                if (!text) {
+                    message.className = "alert d-none";
+                    message.textContent = "";
+                    return;
+                }
+
+                message.className = `alert alert-${type}`;
+                message.textContent = text;
+            };
+
+            const airportDisplay = (airport, city, countryCode) => {
+                return [airport, city, countryCode ? `(${countryCode})` : null]
+                    .filter(Boolean)
+                    .join(" - ");
+            };
+
+            const renderBookings = bookings => {
+                tableBody.innerHTML = bookings
+                    .map(b => `
+                        <tr>
+                            <td>${b.flightHistoryId}</td>
+                            <td>${b.flightId}</td>
+                            <td>${b.segmentNumber ?? "-"}</td>
+                            <td>${b.beginDate ?? "-"}</td>
+                            <td>${airportDisplay(b.origAirport, b.origCityName, b.origCountryCode)}</td>
+                            <td>${airportDisplay(b.destAirport, b.destCityName, b.destCountryCode)}</td>
+                            <td>${b.class ?? "-"}</td>
+                            <td>${b.departTime ?? "-"}</td>
+                            <td>${b.arriveTime ?? "-"}</td>
+                            <td>${b.aircraft ?? "-"}</td>
+                        </tr>
+                    `)
+                    .join("");
+            };
+
+            const loadBookings = async () => {
+                const response = await fetch("/api/flight/my-bookings");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Nie udało się pobrać historii lotów.");
+                }
+
+                const bookings = await response.json();
+                renderBookings(bookings);
+
+                if (bookings.length === 0) {
+                    setMessage("Brak zarezerwowanych lotów.", "info");
+                    return;
+                }
+
+                setMessage(`Masz zarezerwowanych lotów: ${bookings[0].totalBookedByUser}.`, "success");
+            };
+
+            (async () => {
+                try {
+                    await loadBookings();
+                } catch (err) {
+                    setMessage(err.message, "danger");
+                }
+            })();
+        })();
+    </script>
+}

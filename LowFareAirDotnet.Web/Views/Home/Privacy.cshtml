@@ -1,6 +1,164 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Wyszukiwanie lotów";
 }
+
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row g-3 align-items-end mb-4">
+    <div class="col-md-4">
+        <label for="flightDate" class="form-label">Data lotu</label>
+        <input id="flightDate" type="date" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label for="fromAirport" class="form-label">Z miasta</label>
+        <select id="fromAirport" class="form-select">
+            <option value="">Wybierz miasto</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="toAirport" class="form-label">Do miasta</label>
+        <select id="toAirport" class="form-select">
+            <option value="">Wybierz miasto</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button id="searchFlightsBtn" type="button" class="btn btn-primary">Szukaj</button>
+    </div>
+</div>
+
+<div id="flightsMessage" class="alert d-none" role="alert"></div>
+
+<div class="table-responsive">
+    <table class="table table-striped" id="flightsTable">
+        <thead>
+            <tr>
+                <th>FlightId</th>
+                <th>Segment</th>
+                <th>Data</th>
+                <th>Skąd</th>
+                <th>Dokąd</th>
+                <th>Wylot</th>
+                <th>Przylot</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const dateInput = document.getElementById("flightDate");
+            const fromSelect = document.getElementById("fromAirport");
+            const toSelect = document.getElementById("toAirport");
+            const searchBtn = document.getElementById("searchFlightsBtn");
+            const tableBody = document.querySelector("#flightsTable tbody");
+            const message = document.getElementById("flightsMessage");
+
+            const setMessage = (text, type) => {
+                if (!text) {
+                    message.className = "alert d-none";
+                    message.textContent = "";
+                    return;
+                }
+
+                message.className = `alert alert-${type}`;
+                message.textContent = text;
+            };
+
+            const fillCities = async () => {
+                const response = await fetch("/api/cities");
+                if (!response.ok) {
+                    throw new Error("Nie udało się pobrać listy miast.");
+                }
+
+                const cities = await response.json();
+                const options = cities
+                    .map(c => `<option value="${c.code}">${c.name} (${c.countryCode})</option>`)
+                    .join("");
+
+                fromSelect.insertAdjacentHTML("beforeend", options);
+                toSelect.insertAdjacentHTML("beforeend", options);
+            };
+
+            const renderFlights = flights => {
+                tableBody.innerHTML = flights
+                    .map(f => `
+                        <tr>
+                            <td>${f.flightId}</td>
+                            <td>${f.segmentNumber}</td>
+                            <td>${f.flightDate}</td>
+                            <td>${f.origAirport ?? "-"}</td>
+                            <td>${f.destAirport ?? "-"}</td>
+                            <td>${f.departTime ?? "-"}</td>
+                            <td>${f.arriveTime ?? "-"}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="/Home/FlightDetails?flightId=${encodeURIComponent(f.flightId)}&segmentNumber=${f.segmentNumber}&flightDate=${f.flightDate}">
+                                    Szczegóły
+                                </a>
+                            </td>
+                        </tr>`)
+                    .join("");
+            };
+
+            const searchFlights = async () => {
+                const params = new URLSearchParams();
+
+                if (dateInput.value) {
+                    params.set("date", dateInput.value);
+                }
+
+                if (fromSelect.value) {
+                    params.set("fromAirport", fromSelect.value);
+                }
+
+                if (toSelect.value) {
+                    params.set("toAirport", toSelect.value);
+                }
+
+                const response = await fetch(`/api/flight/search?${params.toString()}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Błąd podczas wyszukiwania lotów.");
+                }
+
+                const flights = await response.json();
+                renderFlights(flights);
+
+                if (flights.length === 0) {
+                    setMessage("Brak lotów dla wybranych kryteriów.", "info");
+                } else {
+                    setMessage(`Znaleziono lotów: ${flights.length}.`, "success");
+                }
+            };
+
+            searchBtn.addEventListener("click", async () => {
+                setMessage("", "");
+                tableBody.innerHTML = "";
+
+                try {
+                    await searchFlights();
+                } catch (err) {
+                    setMessage(err.message, "danger");
+                }
+            });
+
+            (async () => {
+                dateInput.value = "";
+
+                try {
+                    await fillCities();
+                } catch (err) {
+                    setMessage(err.message, "danger");
+                }
+
+                try {
+                    await searchFlights();
+                } catch (err) {
+                    setMessage(err.message, "danger");
+                }
+            })();
+        })();
+    </script>
+}

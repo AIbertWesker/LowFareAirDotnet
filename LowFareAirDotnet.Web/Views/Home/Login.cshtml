@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Logowanie";
+    var returnUrl = (ViewData["ReturnUrl"] as string) ?? "/Home/Privacy";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-5">
+        <div id="loginMessage" class="alert d-none" role="alert"></div>
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Login</label>
+            <input id="username" type="text" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Hasło</label>
+            <input id="password" type="password" class="form-control" />
+        </div>
+
+        <button id="loginBtn" type="button" class="btn btn-primary">Zaloguj</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const message = document.getElementById("loginMessage");
+            const usernameInput = document.getElementById("username");
+            const passwordInput = document.getElementById("password");
+            const loginBtn = document.getElementById("loginBtn");
+            const returnUrl = "@returnUrl";
+
+            const setMessage = (text, type) => {
+                if (!text) {
+                    message.className = "alert d-none";
+                    message.textContent = "";
+                    return;
+                }
+
+                message.className = `alert alert-${type}`;
+                message.textContent = text;
+            };
+
+            const login = async () => {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!username || !password) {
+                    throw new Error("Podaj login i hasło.");
+                }
+
+                const response = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Nieprawidłowy login lub hasło.");
+                }
+            };
+
+            loginBtn.addEventListener("click", async () => {
+                setMessage("", "");
+
+                try {
+                    await login();
+                    window.location.href = returnUrl;
+                } catch (err) {
+                    setMessage(err.message, "danger");
+                }
+            });
+        })();
+    </script>
+}

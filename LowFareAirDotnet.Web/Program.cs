@@ -59,6 +59,33 @@ public class Program
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(keyJwt)
             };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    if (string.IsNullOrWhiteSpace(context.Token)
+                        && context.Request.Cookies.TryGetValue("auth_token", out var cookieToken)
+                        && !string.IsNullOrWhiteSpace(cookieToken))
+                    {
+                        context.Token = cookieToken;
+                    }
+
+                    return Task.CompletedTask;
+                },
+                OnChallenge = context =>
+                {
+                    var isApiRequest = context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase);
+                    if (!isApiRequest)
+                    {
+                        context.HandleResponse();
+                        var returnUrl = context.Request.Path + context.Request.QueryString;
+                        context.Response.Redirect($"/Home/Login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         builder.Services.AddAuthorization();

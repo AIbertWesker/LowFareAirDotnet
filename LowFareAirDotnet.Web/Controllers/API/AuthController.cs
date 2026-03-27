@@ -22,7 +22,22 @@ public class AuthController : ControllerBase
         if (token is null)
             return Unauthorized();
 
+        Response.Cookies.Append("auth_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddHours(12)
+        });
+
         return Ok(token);
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("auth_token");
+        return Ok();
     }
 
     [HttpPost("register")]
