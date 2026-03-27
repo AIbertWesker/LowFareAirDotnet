@@ -21,6 +21,57 @@ body {
   margin-bottom: 60px;
 }
 
+html[data-theme='dark'] body {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+
+html[data-theme='dark'] .bg-white,
+html[data-theme='dark'] .navbar,
+html[data-theme='dark'] .footer,
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .table,
+html[data-theme='dark'] .table-striped>tbody>tr:nth-of-type(odd)>* {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+html[data-theme='dark'] .border-bottom,
+html[data-theme='dark'] .border-top,
+html[data-theme='dark'] .table>:not(caption)>*>* {
+  border-color: #374151 !important;
+}
+
+html[data-theme='dark'] .text-dark,
+html[data-theme='dark'] .text-muted,
+html[data-theme='dark'] .navbar-brand,
+html[data-theme='dark'] .nav-link,
+html[data-theme='dark'] a {
+  color: #e5e7eb !important;
+}
+
+html[data-theme='dark'] .form-control,
+html[data-theme='dark'] .form-select {
+  background-color: #111827;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+html[data-theme='dark'] .form-control::placeholder {
+  color: #9ca3af;
+}
+
+html[data-theme='dark'] .btn-outline-secondary {
+  color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+html[data-theme='dark'] .btn-outline-secondary:hover {
+  color: #111827;
+  background-color: #e5e7eb;
+  border-color: #e5e7eb;
+}
+
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;

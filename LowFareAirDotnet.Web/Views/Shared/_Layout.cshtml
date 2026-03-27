@@ -4,6 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LowFareAirDotnet</title>
+    <script>
+        (() => {
+            const savedTheme = localStorage.getItem("theme");
+            const shouldUseDark = savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            if (shouldUseDark) {
+                document.documentElement.setAttribute("data-theme", "dark");
+            }
+        })();
+    </script>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -40,6 +49,9 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Zaloguj</a>
                             </li>
                         }
+                        <li class="nav-item">
+                            <button id="themeToggleBtn" type="button" class="btn btn-sm btn-outline-secondary ms-sm-2 mt-2 mt-sm-0">🌙 Tryb ciemny</button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -59,6 +71,34 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (() => {
+            const toggleBtn = document.getElementById("themeToggleBtn");
+            if (!toggleBtn) {
+                return;
+            }
+
+            const isDark = () => document.documentElement.getAttribute("data-theme") === "dark";
+
+            const refreshButtonText = () => {
+                toggleBtn.textContent = isDark() ? "☀️ Tryb jasny" : "🌙 Tryb ciemny";
+            };
+
+            toggleBtn.addEventListener("click", () => {
+                if (isDark()) {
+                    document.documentElement.removeAttribute("data-theme");
+                    localStorage.setItem("theme", "light");
+                } else {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    localStorage.setItem("theme", "dark");
+                }
+
+                refreshButtonText();
+            });
+
+            refreshButtonText();
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
