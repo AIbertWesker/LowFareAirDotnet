@@ -22,7 +22,7 @@ internal class AuthService : IAuthService
         var user = await _usersRepository.GetUserByName(username) ?? throw new UnauthorizedAccessException("Invalid username or password.");
         var passwordMatch = PasswordHasher.Verify(password, user?.Password ?? string.Empty);
         if (!passwordMatch)
-            passwordMatch = user!.Password == password; //skill issue Bababackendowca
+            passwordMatch = user!.Password == password; //skill issue
 
         if (!passwordMatch)
             throw new UnauthorizedAccessException("Invalid username or password.");
