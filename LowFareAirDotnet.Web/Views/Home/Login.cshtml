@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Logowanie";
     var returnUrl = (ViewData["ReturnUrl"] as string) ?? "/Home/Privacy";
 }
@@ -19,7 +19,44 @@
             <input id="password" type="password" class="form-control" />
         </div>
 
-        <button id="loginBtn" type="button" class="btn btn-primary">Zaloguj</button>
+        <div class="d-flex gap-2">
+            <button id="loginBtn" type="button" class="btn btn-primary">Zaloguj</button>
+            <button id="registerBtn" type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerModal">Zarejestruj</button>
+        </div>
+        <div class="form-text mt-2">Najpierw zarejestruj konto, a potem się zaloguj.</div>
+    </div>
+</div>
+
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Rejestracja</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+            </div>
+            <div class="modal-body">
+                <div id="registerMessage" class="alert d-none" role="alert"></div>
+
+                <div class="mb-3">
+                    <label for="registerUsername" class="form-label">Login</label>
+                    <input id="registerUsername" type="text" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="registerPassword" class="form-label">Hasło</label>
+                    <input id="registerPassword" type="password" class="form-control" />
+                </div>
+
+                <div class="mb-0">
+                    <label for="registerConfirmPassword" class="form-label">Potwierdź hasło</label>
+                    <input id="registerConfirmPassword" type="password" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <button id="registerSubmitBtn" type="button" class="btn btn-primary">Utwórz konto</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -30,6 +67,13 @@
             const usernameInput = document.getElementById("username");
             const passwordInput = document.getElementById("password");
             const loginBtn = document.getElementById("loginBtn");
+            const registerModalElement = document.getElementById("registerModal");
+            const registerModal = bootstrap.Modal.getOrCreateInstance(registerModalElement);
+            const registerUsernameInput = document.getElementById("registerUsername");
+            const registerPasswordInput = document.getElementById("registerPassword");
+            const registerConfirmPasswordInput = document.getElementById("registerConfirmPassword");
+            const registerMessage = document.getElementById("registerMessage");
+            const registerSubmitBtn = document.getElementById("registerSubmitBtn");
             const returnUrl = "@returnUrl";
 
             const setMessage = (text, type) => {
@@ -41,6 +85,17 @@
 
                 message.className = `alert alert-${type}`;
                 message.textContent = text;
+            };
+
+            const setRegisterMessage = (text, type) => {
+                if (!text) {
+                    registerMessage.className = "alert d-none";
+                    registerMessage.textContent = "";
+                    return;
+                }
+
+                registerMessage.className = `alert alert-${type}`;
+                registerMessage.textContent = text;
             };
 
             const login = async () => {
@@ -62,6 +117,35 @@
                 }
             };
 
+            const register = async () => {
+                const username = registerUsernameInput.value.trim();
+                const password = registerPasswordInput.value;
+                const confirmPassword = registerConfirmPasswordInput.value;
+
+                if (!username || !password) {
+                    throw new Error("Podaj login i hasło.");
+                }
+
+                if (!confirmPassword) {
+                    throw new Error("Potwierdź hasło.");
+                }
+
+                if (password !== confirmPassword) {
+                    throw new Error("Hasła muszą być identyczne.");
+                }
+
+                const response = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    const errorText = (await response.text())?.trim();
+                    throw new Error(errorText || "Nie udało się zarejestrować konta.");
+                }
+            };
+
             loginBtn.addEventListener("click", async () => {
                 setMessage("", "");
 
@@ -70,6 +154,27 @@
                     window.location.href = returnUrl;
                 } catch (err) {
                     setMessage(err.message, "danger");
+                }
+            });
+
+            registerModalElement.addEventListener("show.bs.modal", () => {
+                setRegisterMessage("", "");
+                registerUsernameInput.value = usernameInput.value.trim();
+                registerPasswordInput.value = "";
+                registerConfirmPasswordInput.value = "";
+            });
+
+            registerSubmitBtn.addEventListener("click", async () => {
+                setRegisterMessage("", "");
+
+                try {
+                    await register();
+                    registerModal.hide();
+                    usernameInput.value = registerUsernameInput.value.trim();
+                    passwordInput.value = "";
+                    setMessage("Konto zostało utworzone. Możesz się teraz zalogować.", "success");
+                } catch (err) {
+                    setRegisterMessage(err.message, "danger");
                 }
             });
         })();
